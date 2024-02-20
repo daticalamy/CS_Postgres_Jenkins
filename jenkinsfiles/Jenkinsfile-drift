@@ -1,0 +1,86 @@
+pipeline {
+	agent any
+	
+	options {
+		// This is required if you want to clean before build
+		skipDefaultCheckout(true)
+	}
+	
+	environment {
+		PATH="/opt/liquibase/liquibase/:$PATH"
+		LIQUIBASE_COMMAND_USERNAME = credentials('LIQUIBASE_USER')
+		LIQUIBASE_COMMAND_PASSWORD = credentials('LIQUIBASE_PASSWORD')
+		LIQUIBASE_LICENSE_KEY = credentials('LIQUIBASE_KEY')
+		LIQUIBASE_DEFAULTS_FILE="liquibase.linux.properties"
+		
+		TARGET_ENVIRONMENT = "${params.TARGET_ENVIRONMENT}"
+		SOURCE_ENVIRONMENT = "${params.SOURCE_ENVIRONMENT}"
+	}
+
+	stages {
+		stage('Workspace') {
+			steps {
+			
+			    script {
+				  currentBuild.displayName = "#" + env.BUILD_NUMBER + " TARGET: ${TARGET_ENVIRONMENT} SOURCE: ${SOURCE_ENVIRONMENT}"
+				}
+			
+				// Clean before build
+				cleanWs() // This requires ws-cleanup plugin
+					
+				// We need to explicitly checkout from SCM here
+				checkout scm
+				echo "Building ${env.JOB_NAME}..."
+			}  // end steps
+		} // end stage
+
+		stage('Deploy') {
+			steps {
+			
+			    echo "Target Environment: ${TARGET_ENVIRONMENT}"
+			    echo "Source Environment: ${SOURCE_ENVIRONMENT}"
+			
+			    withEnv(["URL_CREDENTIALID=LIQUIBASE_${TARGET_ENVIRONMENT}_URL",]) {
+                  withCredentials([string(credentialsId: "${URL_CREDENTIALID}", variable: 'LIQUIBASE_COMMAND_URL' )]) {
+				  
+				withEnv(["URL_CREDENTIALID=LIQUIBASE_${SOURCE_ENVIRONMENT}_URL",]) {
+                  withCredentials([string(credentialsId: "${URL_CREDENTIALID}", variable: 'LIQUIBASE_COMMAND_REFERENCE_URL' )]) {
+			  
+                withCredentials([string(credentialsId: "LIQUIBASE_USER", variable: 'LIQUIBASE_COMMAND_USERNAME' )]) {
+				withCredentials([string(credentialsId: "LIQUIBASE_USER", variable: 'LIQUIBASE_COMMAND_REFERENCE_USERNAME' )]) {
+				
+                withCredentials([string(credentialsId: "LIQUIBASE_PASSWORD", variable: 'LIQUIBASE_COMMAND_PASSWORD' )]) {
+				withCredentials([string(credentialsId: "LIQUIBASE_PASSWORD", variable: 'LIQUIBASE_COMMAND_REFERENCE_PASSWORD' )]) {
+			  
+				sh '''
+												
+					# Run Liquibase flow file
+					liquibase flow --flow-file=flows/liquibase-drift.flowfile.yaml
+					
+				'''
+
+                }  // Password creds
+				}  // Password creds
+			
+                }	 // Username creds
+				}	 // Username creds					
+			
+				  } // REF URL creds
+                } // REF URL env  				  
+				  
+			      } // URL creds
+                } // URL env    
+				
+			} // end steps
+		} // end stage		
+    }  // end stages
+	
+	post {
+			cleanup {  
+				archiveArtifacts '**/reports/**'
+			} // cleanup	
+	
+	} // end post
+		
+		
+} // end pipeline
