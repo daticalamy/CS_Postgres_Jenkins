@@ -1,10 +1,10 @@
 checksPackages:
-- name: dev-checks
+- name: DEV-checks
   files:
   - checks/liquibase.checks-settings-dev.conf
-- name: uat-checks
+- name: UAT-checks
   files:
   - checks/liquibase.checks-settings-uat.conf
-- name: prod-checks
+- name: PROD-checks
   files:
   - checks/liquibase.checks-settings-prod.conf
