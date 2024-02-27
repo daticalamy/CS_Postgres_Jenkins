@@ -20,7 +20,7 @@ pipeline {
 			steps {
 			
 			    script {
-				  currentBuild.displayName = "#" + env.BUILD_NUMBER + " ${JIRA}" + " ${ENVIRONMENT}"
+				  currentBuild.displayName = "#" + env.BUILD_NUMBER + " ${ENVIRONMENT}"
 				}
 			
 				// Clean before build
