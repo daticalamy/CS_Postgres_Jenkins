@@ -1,0 +1,10 @@
+checksPackages:
+- name: dev-checks
+  files:
+  - checks/liquibase.checks-settings-dev.conf
+- name: test-checks
+  files:
+  - checks/liquibase.checks-settings-test.conf
+- name: prod-checks
+  files:
+  - checks/liquibase.checks-settings-prod.conf
