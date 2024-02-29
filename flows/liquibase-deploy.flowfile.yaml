@@ -30,19 +30,19 @@ stages:
     actions:
       - type: liquibase
         command: status
-        cmdArgs: {verbose: true, context-filter: ${ENV}}
+        cmdArgs: {verbose: true, context-filter: "${ENV}"}
 
   Update-SQL:
     actions:
       - type: liquibase
         command: update-sql
-        cmdArgs: {context-filter: ${ENV}}
+        cmdArgs: {context-filter: "${ENV}"}
 
   Update:
     actions:
       - type: liquibase
         command: update
-        cmdArgs: {context-filter: ${ENV}}
+        cmdArgs: {context-filter: "${ENV}"}
         globalArgs: { reports-name: "deploy-report-${ENV}.html" }
 
   Checks-Database:
