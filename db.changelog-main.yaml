@@ -2,6 +2,9 @@ databaseChangeLog:
   - include:
       file: changelogs/main.yaml
       relativeToChangelogFile: true
+  - include:
+      file: changelogs/main.xml
+      relativeToChangelogFile: true
       
   - includeAll:
       path: changelogs/logic
