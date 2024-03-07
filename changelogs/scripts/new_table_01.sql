@@ -1,4 +1,4 @@
-create table test_table_01 (
+create table new_table_01 (
   id int, 
   description varchar(30)
 );
