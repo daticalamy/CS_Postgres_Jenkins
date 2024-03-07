@@ -34,7 +34,12 @@ stages:
         command: update-sql
         cmdArgs: {context-filter: DEV}
 
-  Update:
+  Echo:
+    actions:
+      - type: shell
+        command: echo 'Value of DRY_RUN variable ${DRY_RUN}'
+        
+  Update:  
     actions:
       - type: liquibase
         if: "${DRY_RUN} == false"
