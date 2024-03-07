@@ -8,6 +8,7 @@ pipeline {
 	
 	environment {
 		PATH="/opt/liquibase/liquibase/:$PATH"
+		DRY_RUN = "${params.DRY_RUN}"
 		LIQUIBASE_COMMAND_URL = credentials('LIQUIBASE_DEV_URL')
 		LIQUIBASE_COMMAND_USERNAME = credentials('LIQUIBASE_USER')
 		LIQUIBASE_COMMAND_PASSWORD = credentials('LIQUIBASE_PASSWORD')
