@@ -42,8 +42,6 @@ pipeline {
                 docker {
 			
                     image 'liquibase/liquibase:latest'
-                    args '--env LIQUIBASE_SEARCH_PATH=/liquibase/changelog --env LB_BASE_DIR=/liquibase/changelog --env LIQUIBASE_COMMAND_USERNAME --env LIQUIBASE_COMMAND_PASSWORD --env LIQUIBASE_LICENSE_KEY --env ENVIRONMENT --rm -v $WORKSPACE:/liquibase/changelog'
-                    reuseNode true   	
 					
                 }
             }
