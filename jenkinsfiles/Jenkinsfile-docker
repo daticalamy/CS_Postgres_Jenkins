@@ -1,118 +1,69 @@
-/*
-###
-### This sample pipeline is intended as a starting point for integration between Liquibase Pro and Jenkins pipelines
-### Review and update prior to use
-###
-### Liquibase version: 4.26.0+
-###
-### Liquibase sales: https://www.liquibase.com/contact-us
-### Liquibase support: https://support.liquibase.com/knowledge
-### 
-
-### 
-### Prior to running the following files must exist in repository:
-###
-### 1. liquibase.flowfile.yaml
-###    This flow file
-###    https://docs.liquibase.com/commands/flow/flow.html
-###
-### 2. liquibase.checks-settings.conf
-###    Liquibase quality checks configuration file
-###    https://docs.liquibase.com/commands/quality-checks/home.html
-###
-### 3. changelog.main.xml
-###    Root Liquibase changelog file
-###    https://docs.liquibase.com/concepts/changelogs/home.html
-###
-*/
-
-/*
-###
-### Jenkins documentation: https://www.jenkins.io/doc/book/pipeline/jenkinsfile/
-###
-*/
-
-/*
-###
-### Utilizes a Linux node with git and docker available
-### https://www.jenkins.io/doc/book/managing/nodes/
-###
-*/
 pipeline {
-    agent { label 'liquibase' }
+    agent any
 
-/*
-###
-### Set Liquibase environment variables
-###
-*/
-    environment {
-        LB_ENVIRONMENT = 'DEV'
-        LIQUIBASE_COMMAND_CHANGELOG_FILE = 'changelog.main.xml'
-        LIQUIBASE_COMMAND_TAG = '${BUILD_ID}'
-/*
-###
-### These values should be pulled from Jenkins secrets
-### Secrets should include LIQUIBASE_COMMAND_URL, LIQUIBASE_COMMAND_USERNAME, LIQUIBASE_COMMAND_PASSWORD, LIQUIBASE_LICENSE_KEY
-###
-*/
-        LIQUIBASE_COMMAND_URL = credentials('LIQUIBASE_DEV_URL')
-        LIQUIBASE_COMMAND_USERNAME = credentials('LIQUIBASE_DEV_USER')
-        LIQUIBASE_COMMAND_PASSWORD = credentials('LIQUIBASE_DEV_PASSWORD')
-        LIQUIBASE_LICENSE_KEY = credentials('LIQUIBASE_KEY')
-    }
-/*
-###
-### Checkout pipeline repository
-###
-*/
+   options {
+		// This is required if you want to clean before build
+		skipDefaultCheckout(true)
+	}
+	
+	environment {
+		LIQUIBASE_COMMAND_USERNAME = credentials('LIQUIBASE_USER')
+		LIQUIBASE_COMMAND_PASSWORD = credentials('LIQUIBASE_PASSWORD')
+		LIQUIBASE_LICENSE_KEY = credentials('LIQUIBASE_KEY')
+		LIQUIBASE_DEFAULTS_FILE="liquibase.linux.properties"
+		ENVIRONMENT = "${params.ENVIRONMENT}"
+		
+        AWS_S3_BUCKET = credentials('AWS_S3_BUCKET')
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_REGION = "us-east-1"
+	}
+		
     stages {
-        stage('Checking out repository') {
-            steps {
-/*
-###
-### Update to your project repository
-### Requires the git plugin for Jenkins
-### Github credentials are set as user/password type in Jenkins
-###
-*/
-                deleteDir()
-                checkout scmGit(branches: [[name: 'origin/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'LIQUIBASE_GITHUB_TOKEN', url: 'https://github.com/jbennett-liquibase/Toolbox']])
-                sh 'git switch main'
-            }
-        }
-/*
-###
-### Run the Liquibase flowfile
-### Requires the Docker plugin for Jenkins
-###
-*/
+
+		stage('Workspace') {
+			steps {
+			
+			    script {
+				  currentBuild.displayName = "#" + env.BUILD_NUMBER + " ${ENVIRONMENT}"
+				}
+			
+				// Clean before build
+				cleanWs() // This requires ws-cleanup plugin
+					
+				// We need to explicitly checkout from SCM here
+				checkout scm
+				echo "Building ${env.JOB_NAME}..."
+			}  // end steps
+		} // end stage
+
         stage('Running Liquibase') {
             agent {
                 docker {
+				
+				withEnv(["URL_CREDENTIALID=LIQUIBASE_${ENVIRONMENT}_URL",]) {
+                  withCredentials([string(credentialsId: "${URL_CREDENTIALID}", variable: 'LIQUIBASE_COMMAND_URL' )]) {
+			  
+                withCredentials([string(credentialsId: "LIQUIBASE_USER", variable: 'LIQUIBASE_COMMAND_USERNAME' )]) {
+				
+                withCredentials([string(credentialsId: "LIQUIBASE_PASSWORD", variable: 'LIQUIBASE_COMMAND_PASSWORD' )]) {
+				
+				
                     image 'liquibase/liquibase:latest'
-                    args '--env LIQUIBASE_SEARCH_PATH=/liquibase/changelog --env LB_BASE_DIR=/liquibase/changelog --env LIQUIBASE_COMMAND_USERNAME --env LIQUIBASE_COMMAND_PASSWORD --env LIQUIBASE_COMMAND_URL --env LIQUIBASE_LICENSE_KEY --env LIQUIBASE_COMMAND_CHANGELOG_FILE --env LIQUIBASE_COMMAND_TAG --env LB_ENVIRONMENT --rm -v $WORKSPACE:/liquibase/changelog'
+                    args '--env LIQUIBASE_SEARCH_PATH=/liquibase/changelog --env LB_BASE_DIR=/liquibase/changelog --env LIQUIBASE_COMMAND_USERNAME --env LIQUIBASE_COMMAND_PASSWORD --env LIQUIBASE_COMMAND_URL --env LIQUIBASE_LICENSE_KEY --env ENVIRONMENT --rm -v $WORKSPACE:/liquibase/changelog'
                     reuseNode true
+					
+				}  // Password creds
+			
+                }	 // Username creds		
+			
+			      } // URL creds
+                } // URL env    	
+					
                 }
             }
             steps {
-                sh 'liquibase flow --flow-file=liquibase.flowfile.yaml'
-            }
-        }
-/*
-###
-### Update respository
-###
-*/
-        stage('Updating repository') {
-            steps {
-                sh 'git config --global user.name jenkins-node'
-                sh 'git config --global user.email jenkins-node@jenkins.io'
-                sh 'git add .'
-                sh 'git commit -m "Update repository"'
-                withCredentials([gitUsernamePassword(credentialsId: 'LIQUIBASE_GITHUB_TOKEN', gitToolName: 'Default')]) {
-                    sh 'git push -u origin main --force'
-                }
+                sh 'liquibase status'
             }
         }
     }
