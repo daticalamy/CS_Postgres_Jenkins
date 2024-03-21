@@ -47,8 +47,26 @@ pipeline {
             }
             steps {
 			    sh 'lpm update'
-				sh 'lpm add liquibase-s3-extension'
+				sh 'lpm add liquibase-s3-extension' || true
                 sh 'liquibase -v'
+				
+				withEnv(["URL_CREDENTIALID=LIQUIBASE_${ENVIRONMENT}_URL",]) {
+                  withCredentials([string(credentialsId: "${URL_CREDENTIALID}", variable: 'LIQUIBASE_COMMAND_URL' )]) {
+			  
+                withCredentials([string(credentialsId: "LIQUIBASE_USER", variable: 'LIQUIBASE_COMMAND_USERNAME' )]) {
+				
+                withCredentials([string(credentialsId: "LIQUIBASE_PASSWORD", variable: 'LIQUIBASE_COMMAND_PASSWORD' )]) {
+			  
+				
+				sh	'liquibase flow --flow-file=flows/liquibase-snapshot.flowfile.yaml'
+
+              }  // Password creds
+			
+              }	 // Username creds		
+			
+			    } // URL creds
+              } // URL env
+				
             }
         }
     }
