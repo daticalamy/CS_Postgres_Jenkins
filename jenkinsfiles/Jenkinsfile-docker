@@ -47,7 +47,7 @@ pipeline {
             }
             steps {
 			    sh 'lpm update'
-				sh 'lpm add liquibase-s3-extension' || true
+				sh 'lpm add liquibase-s3-extension || true'
                 sh 'liquibase -v'
 				
 				withEnv(["URL_CREDENTIALID=LIQUIBASE_${ENVIRONMENT}_URL",]) {
