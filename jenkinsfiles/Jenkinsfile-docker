@@ -42,6 +42,8 @@ pipeline {
                 docker {
 			
                     image 'liquibase/liquibase:latest'
+					lpm update
+					lpm add liquibase-s3-extension
 					
                 }
             }
