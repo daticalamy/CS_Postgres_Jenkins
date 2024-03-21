@@ -40,25 +40,10 @@ pipeline {
         stage('Running Liquibase') {
             agent {
                 docker {
-				
-				withEnv(["URL_CREDENTIALID=LIQUIBASE_${ENVIRONMENT}_URL",]) {
-                  withCredentials([string(credentialsId: "${URL_CREDENTIALID}", variable: 'LIQUIBASE_COMMAND_URL' )]) {
-			  
-                withCredentials([string(credentialsId: "LIQUIBASE_USER", variable: 'LIQUIBASE_COMMAND_USERNAME' )]) {
-				
-                withCredentials([string(credentialsId: "LIQUIBASE_PASSWORD", variable: 'LIQUIBASE_COMMAND_PASSWORD' )]) {
-				
-				
+			
                     image 'liquibase/liquibase:latest'
-                    args '--env LIQUIBASE_SEARCH_PATH=/liquibase/changelog --env LB_BASE_DIR=/liquibase/changelog --env LIQUIBASE_COMMAND_USERNAME --env LIQUIBASE_COMMAND_PASSWORD --env LIQUIBASE_COMMAND_URL --env LIQUIBASE_LICENSE_KEY --env ENVIRONMENT --rm -v $WORKSPACE:/liquibase/changelog'
-                    reuseNode true
-					
-				}  // Password creds
-			
-                }	 // Username creds		
-			
-			      } // URL creds
-                } // URL env    	
+                    args '--env LIQUIBASE_SEARCH_PATH=/liquibase/changelog --env LB_BASE_DIR=/liquibase/changelog --env LIQUIBASE_COMMAND_USERNAME --env LIQUIBASE_COMMAND_PASSWORD --env LIQUIBASE_LICENSE_KEY --env ENVIRONMENT --rm -v $WORKSPACE:/liquibase/changelog'
+                    reuseNode true   	
 					
                 }
             }
