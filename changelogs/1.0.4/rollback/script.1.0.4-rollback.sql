@@ -1,0 +1,1 @@
+DROP TABLE tt_1_0_4;

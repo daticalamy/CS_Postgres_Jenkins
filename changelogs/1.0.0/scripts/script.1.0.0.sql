@@ -1,0 +1,4 @@
+CREATE TABLE tt_1_0_0 (
+  id INT PRIMARY KEY,
+  name VARCHAR(10)
+);

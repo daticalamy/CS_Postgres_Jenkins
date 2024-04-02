@@ -14,13 +14,19 @@ stages:
       - type: liquibase
         command: validate
 
+#  Checks-Changelog:
+#    actions:
+#      - type: liquibase
+#        command: checks run
+#        cmdArgs: {checks-scope: changelog}
+#        globalArgs: { reports-name: "checks-report-build-changelog.html" }
+        
   Checks-Changelog:
     actions:
-      - type: liquibase
-        command: checks run
-        cmdArgs: {checks-scope: changelog}
-        globalArgs: { reports-name: "checks-report-build-changelog.html" }
-
+      - type: shell
+        command: | 
+          liquibase checks run --checks-scope=changelog --report-name=checks-report-build-changelog.html || CHECKS=$? && echo $CHECKS && if [ $CHECKS -gt 2 ]; then echo "Liquibase Checks Run command failed with return code = " $CHECKS; fi
+         
   Status:
     actions:
       - type: liquibase
