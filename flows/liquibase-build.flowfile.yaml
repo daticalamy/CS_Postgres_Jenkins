@@ -9,6 +9,12 @@ globalVariables:
   DRY_RUN: ${DRY_RUN:-false}
 
 stages:
+  Connect:
+    actions: 
+      - type: liquibase
+        command: connect
+
+
   Validation:
     actions: 
       - type: liquibase
@@ -25,7 +31,7 @@ stages:
     actions:
       - type: shell
         command: | 
-          liquibase checks run --checks-scope=changelog --report-name=checks-report-build-changelog.html || CHECKS=$? && echo $CHECKS && if [ $CHECKS -gt 2 ]; then echo "Liquibase Checks Run command failed with return code = " $CHECKS; fi
+          liquibase checks run --checks-scope=changelog --report-name=checks-report-build-changelog.html
          
   Status:
     actions:

@@ -9,10 +9,19 @@ stages:
   Snapshot:
     actions:
       - type: liquibase
-        command: snapshot
+        command: snapshot-S3
         cmdArgs: 
           {  snapshot-format: json }
         globalArgs: { output-file: 's3://${BUCKET}/snapshots/${ENV}-snapshot.json' }
         
       - type: shell
         command: echo 'Snapshot saved to s3://${BUCKET}/snapshots/${ENV}-snapshot.json'
+
+#      - type: liquibase
+#        command: snapshot-Azure
+#        cmdArgs: 
+#          {  snapshot-format: json }
+#        globalArgs: { output-file: 's3://${BUCKET}/snapshots/${ENV}-snapshot.json' }
+#        
+#      - type: shell
+#        command: echo 'Snapshot saved to s3://${BUCKET}/snapshots/${ENV}-snapshot.json'
