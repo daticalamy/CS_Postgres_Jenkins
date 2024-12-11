@@ -58,7 +58,7 @@ pipeline {
               # az storage container create --account-name $AZURE_STORAGE_ACCOUNT --name $JOB_NAME --auth-mode login
 			  # az storage blob upload-batch --destination ${JOB_NAME} --source ./text --account-name $AZURE_STORAGE_ACCOUNT
 			  az storage container create --account-name cssnapshots --name jenkins-snapshot --auth-mode login
-              az storage blob upload-batch --destination jenkins-snapshot --source ./text --account-name $AZURE_STORAGE_ACCOUNT
+              az storage blob upload-batch --destination jenkins-snapshot --source ./text --account-name $AZURE_STORAGE_ACCOUNT --overwrite
               # Logout from Azure
               az logout
             '''
