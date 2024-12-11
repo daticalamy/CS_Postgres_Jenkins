@@ -47,7 +47,7 @@ pipeline {
 				withCredentials([string(credentialsId: "LIQUIBASE_PASSWORD", variable: 'LIQUIBASE_COMMAND_PASSWORD' )]) {
 	  
 					sh '''
-						liquibase --output-file=snapshots/mySnapshot2.json snapshot --snapshot-format=json'
+						liquibase --output-file=snapshots/mySnapshot2.json snapshot --snapshot-format=json
 					'''
 				}  // Password creds
 				}	 // Username creds		
