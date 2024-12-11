@@ -50,7 +50,7 @@ pipeline {
               withCredentials([string(credentialsId: "LIQUIBASE_PASSWORD", variable: 'LIQUIBASE_COMMAND_PASSWORD' )]) {
 			  
 				sh '''
-					liquibase flow --flow-file=flows/liquibase-snapshot.flowfile.yaml
+					liquibase flow --flow-file=flows/liquibase-snapshot-aws.flowfile.yaml
 				'''
 
               }  // Password creds
