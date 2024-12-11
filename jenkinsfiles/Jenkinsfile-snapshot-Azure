@@ -36,8 +36,24 @@ pipeline {
   
     stage('Snapshot') {
       steps {
-		sh 'liquibase --output-file=snapshots/mySnapshot2.json snapshot --snapshot-format=json'
-      }
+	  
+	    echo "Environment: ${ENVIRONMENT}"
+		
+		withEnv(["URL_CREDENTIALID=LIQUIBASE_${ENVIRONMENT}_URL",]) {
+				withCredentials([string(credentialsId: "${URL_CREDENTIALID}", variable: 'LIQUIBASE_COMMAND_URL' )]) {
+			  
+				withCredentials([string(credentialsId: "LIQUIBASE_USER", variable: 'LIQUIBASE_COMMAND_USERNAME' )]) {
+				
+				withCredentials([string(credentialsId: "LIQUIBASE_PASSWORD", variable: 'LIQUIBASE_COMMAND_PASSWORD' )]) {
+	  
+					sh '''
+						liquibase --output-file=snapshots/mySnapshot2.json snapshot --snapshot-format=json'
+					'''
+				}  // Password creds
+				}	 // Username creds		
+				} // URL creds
+        } // URL env				
+      } // end steps
 
       post {
         success {
