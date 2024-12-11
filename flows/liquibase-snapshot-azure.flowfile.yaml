@@ -5,7 +5,9 @@ globalVariables:
   ENV: ${ENVIRONMENT}
   CLIENT_ID: ${AZURE_CREDS_USR}
   CLIENT_SECRET: ${AZURE_CREDS_PSW}
-  TENANT_ID: ${AZURE_TENANT_ID}   
+  TENANT_ID: ${AZURE_TENANT_ID}
+  SUBSCRIPTION_ID: ${AZURE_SUBSCRIPTION_ID}
+  STORAGE_ACCT: ${AZURE_STORAGE_ACCOUNT}  
   
 stages:
   Snapshot:
@@ -19,7 +21,19 @@ stages:
       - type: shell
         command: echo 'Snapshot created as snapshots/${ENV}-snapshot.json'
 
-  Upload:
+  AzureUpload:
     actions:
       - type: shell
         command: az login --service-principal -u ${CLIENT_ID} -p ${CLIENT_SECRET} -t ${TENANT_ID}
+
+      - type: shell
+        command: az account set --subscription ${SUBSCRIPTION_ID}
+
+      - type: shell
+        command: az storage container create --account-name cssnapshots --name jenkins-snapshot --auth-mode login
+
+      - type: shell
+        command: az storage blob upload-batch --destination jenkins-snapshot --source ./snapshots --account-name ${STORAGE_ACCT} --overwrite
+
+      - type: shell
+        command: az logout
