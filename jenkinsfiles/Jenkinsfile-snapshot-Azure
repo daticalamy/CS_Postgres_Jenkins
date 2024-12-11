@@ -71,10 +71,13 @@ pipeline {
 				withCredentials([string(credentialsId: "LIQUIBASE_USER", variable: 'LIQUIBASE_COMMAND_USERNAME' )]) {
 				
 				withCredentials([string(credentialsId: "LIQUIBASE_PASSWORD", variable: 'LIQUIBASE_COMMAND_PASSWORD' )]) {
+				
+				withCredentials([string(credentialsId: "azuresp", passwordVariable: 'AZURE_CLIENT_SECRET', usernameVariable: 'AZURE_CLIENT_ID' )]) {
 	  
 					sh '''
 						liquibase --output-file=snapshots/${ENVIRONMENT}-snapshot.json snapshot --snapshot-format=json
 					'''
+				}  // Azure SP creds	
 				}  // Password creds
 				}	 // Username creds		
 				} // URL creds
