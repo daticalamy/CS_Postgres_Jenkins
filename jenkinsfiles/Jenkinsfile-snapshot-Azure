@@ -68,7 +68,8 @@ pipeline {
               az account set --subscription $AZURE_SUBSCRIPTION_ID
               # Execute upload to Azure
 			  az storage container create --account-name cssnapshots --name jenkins-snapshot --auth-mode login
-              az storage blob upload-batch --destination jenkins-snapshot --source ./snapshots/mySnapshot2.json --account-name $AZURE_STORAGE_ACCOUNT --overwrite
+			  pwd
+              az storage blob upload-batch --destination jenkins-snapshot --source ./snapshots --account-name $AZURE_STORAGE_ACCOUNT --overwrite
               # Logout from Azure
               az logout
             '''
