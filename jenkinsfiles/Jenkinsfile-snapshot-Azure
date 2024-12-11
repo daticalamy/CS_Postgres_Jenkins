@@ -15,6 +15,8 @@ pipeline {
     AZURE_SUBSCRIPTION_ID='a38e082e-9dfc-49dd-a5e8-9d13e908b010'
     AZURE_TENANT_ID='fd6a63a1-3f33-4f34-802a-06ae5ad2217a'
     AZURE_STORAGE_ACCOUNT='cssnapshots'
+	AZURE_CREDS=credentials('azuresp')
+	
   }
   stages {
   
@@ -78,9 +80,9 @@ pipeline {
 						liquibase --output-file=snapshots/${ENVIRONMENT}-snapshot.json snapshot --snapshot-format=json
 					'''
 				}  // Azure SP creds	
-				}  // Password creds
-				}	 // Username creds		
-				} // URL creds
+				}  // DB Password creds
+				}  // DB Username creds		
+				} // DB URL creds
         } // URL env				
       } // end steps
 
