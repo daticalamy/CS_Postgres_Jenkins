@@ -47,7 +47,7 @@ pipeline {
 				withCredentials([string(credentialsId: "LIQUIBASE_PASSWORD", variable: 'LIQUIBASE_COMMAND_PASSWORD' )]) {
 	  
 					sh '''
-						liquibase --output-file=snapshots/mySnapshot2.json snapshot --snapshot-format=json
+						liquibase --output-file=snapshots/${ENVIRONMENT}-snapshot.json snapshot --snapshot-format=json
 					'''
 				}  // Password creds
 				}	 // Username creds		
@@ -68,7 +68,6 @@ pipeline {
               az account set --subscription $AZURE_SUBSCRIPTION_ID
               # Execute upload to Azure
 			  az storage container create --account-name cssnapshots --name jenkins-snapshot --auth-mode login
-			  pwd
               az storage blob upload-batch --destination jenkins-snapshot --source ./snapshots --account-name $AZURE_STORAGE_ACCOUNT --overwrite
               # Logout from Azure
               az logout
