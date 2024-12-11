@@ -3,7 +3,10 @@
 
 globalVariables:
   ENV: ${ENVIRONMENT}
-
+  CLIENT_ID: ${AZURE_CLIENT_ID}
+  CLIENT_SECRET: ${AZURE_CLIENT_SECRET}
+  TENANT_ID: ${AZURE_TENANT_ID}   
+  
 stages:
   Snapshot:
     actions:
@@ -15,3 +18,8 @@ stages:
         
       - type: shell
         command: echo 'Snapshot created as snapshots/${ENV}-snapshot.json'
+
+  Upload:
+    actions:
+      - type: shell
+        command: az login --service-principal -u ${CLIENT_ID} -p ${CLIENT_SECRET} -t ${TENANT_ID}
