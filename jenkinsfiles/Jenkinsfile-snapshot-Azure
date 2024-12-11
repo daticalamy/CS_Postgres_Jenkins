@@ -26,8 +26,11 @@ pipeline {
               # Set default subscription
               az account set --subscription $AZURE_SUBSCRIPTION_ID
               # Execute upload to Azure
-              az storage container create --account-name $AZURE_STORAGE_ACCOUNT --name $JOB_NAME --auth-mode login
-              az storage blob upload-batch --destination ${JOB_NAME} --source ./text --account-name $AZURE_STORAGE_ACCOUNT
+			  # Comment out below b/c Azure does not like Jenkins path as JOB_NAME
+              # az storage container create --account-name $AZURE_STORAGE_ACCOUNT --name $JOB_NAME --auth-mode login
+			  # az storage blob upload-batch --destination ${JOB_NAME} --source ./text --account-name $AZURE_STORAGE_ACCOUNT
+			  az storage container create --account-name cssnapshots --name jenkins-snapshot --auth-mode login
+              az storage blob upload-batch --destination jenkins-snapshot --source ./text --account-name $AZURE_STORAGE_ACCOUNT
               # Logout from Azure
               az logout
             '''
