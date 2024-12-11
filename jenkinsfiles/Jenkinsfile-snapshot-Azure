@@ -15,6 +15,7 @@ pipeline {
     AZURE_SUBSCRIPTION_ID='a38e082e-9dfc-49dd-a5e8-9d13e908b010'
     AZURE_TENANT_ID='fd6a63a1-3f33-4f34-802a-06ae5ad2217a'
     AZURE_STORAGE_ACCOUNT='cssnapshots'
+    AZURE_CONTAINER_NAME='jenkins-snapshot'
 	AZURE_CREDS=credentials('azuresp')
 	
   }
@@ -43,21 +44,19 @@ pipeline {
 		
 		withEnv(["URL_CREDENTIALID=LIQUIBASE_${ENVIRONMENT}_URL",]) {
 		  withCredentials([string(credentialsId: "${URL_CREDENTIALID}", variable: 'LIQUIBASE_COMMAND_URL' )]) {
-		  
 		  withCredentials([string(credentialsId: "LIQUIBASE_USER", variable: 'LIQUIBASE_COMMAND_USERNAME' )]) {
-			
 		  withCredentials([string(credentialsId: "LIQUIBASE_PASSWORD", variable: 'LIQUIBASE_COMMAND_PASSWORD' )]) {
 		  
 			sh '''
 				liquibase flow --flow-file=flows/liquibase-snapshot-azure.flowfile.yaml
 			'''
 
-		  }  // Password creds
-		  }	 // Username creds		
-		  } // URL creds
-		} // URL env
+		  }  // DB Password creds
+		  }	 // DB Username creds		
+		  } // DB URL creds
+		} // URL environment
 			
 		} // end steps
 	} // end stage
-  }
+  } // end stages
 }
