@@ -1,9 +1,9 @@
 pipeline {
   agent any
   environment {
-    AZURE_SUBSCRIPTION_ID='99999999-9999-9999-9999-999999999999'
-    AZURE_TENANT_ID='99999999-9999-9999-9999-999999999999'
-    AZURE_STORAGE_ACCOUNT='myStorageAccount'
+    AZURE_SUBSCRIPTION_ID='a38e082e-9dfc-49dd-a5e8-9d13e908b010'
+    AZURE_TENANT_ID='fd6a63a1-3f33-4f34-802a-06ae5ad2217a'
+    AZURE_STORAGE_ACCOUNT='cssnapshots'
   }
   stages {
     stage('Build') {

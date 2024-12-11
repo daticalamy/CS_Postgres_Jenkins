@@ -16,12 +16,3 @@ stages:
         
       - type: shell
         command: echo 'Snapshot saved to s3://${BUCKET}/snapshots/${ENV}-snapshot.json'
-
-#      - type: liquibase
-#        command: snapshot-Azure
-#        cmdArgs: 
-#          {  snapshot-format: json }
-#        globalArgs: { output-file: 's3://${BUCKET}/snapshots/${ENV}-snapshot.json' }
-#        
-#      - type: shell
-#        command: echo 'Snapshot saved to s3://${BUCKET}/snapshots/${ENV}-snapshot.json'
