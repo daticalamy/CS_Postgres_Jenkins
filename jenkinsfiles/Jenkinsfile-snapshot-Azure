@@ -1,11 +1,39 @@
 pipeline {
   agent any
+  
+  options {
+    // This is required if you want to clean before build
+    skipDefaultCheckout(true)
+  }
+  
   environment {
+    PATH="/opt/liquibase/liquibase/:$PATH"
+	LIQUIBASE_LICENSE_KEY = credentials('LIQUIBASE_KEY')
+	LIQUIBASE_DEFAULTS_FILE="liquibase.linux.properties"
+	ENVIRONMENT = "${params.ENVIRONMENT}"
+  
     AZURE_SUBSCRIPTION_ID='a38e082e-9dfc-49dd-a5e8-9d13e908b010'
     AZURE_TENANT_ID='fd6a63a1-3f33-4f34-802a-06ae5ad2217a'
     AZURE_STORAGE_ACCOUNT='cssnapshots'
   }
   stages {
+  
+	stage('Workspace') {
+		steps {
+			
+			script {
+		      currentBuild.displayName = "#" +env.BUILD_NUMBER + " ${ENVIRONMENT}"
+			}
+			
+			// Clean before build
+			cleanWs() // This requires ws-cleanup plugin
+					
+			// We need to explicitly checkout from SCM here
+			checkout scm
+			echo "Building ${env.JOB_NAME}..."
+		}  // end steps
+	} // end stage  
+  
     stage('Build') {
       steps {
         sh 'rm -rf *'
