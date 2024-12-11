@@ -32,7 +32,33 @@ pipeline {
 			checkout scm
 			echo "Building ${env.JOB_NAME}..."
 		}  // end steps
-	} // end stage  
+	} // end stage
+
+	stage('Liquibase Flow') {
+		steps {
+		
+		echo "Environment: ${ENVIRONMENT}"
+		
+		withEnv(["URL_CREDENTIALID=LIQUIBASE_${ENVIRONMENT}_URL",]) {
+		  withCredentials([string(credentialsId: "${URL_CREDENTIALID}", variable: 'LIQUIBASE_COMMAND_URL' )]) {
+		  
+		  withCredentials([string(credentialsId: "LIQUIBASE_USER", variable: 'LIQUIBASE_COMMAND_USERNAME' )]) {
+			
+		  withCredentials([string(credentialsId: "LIQUIBASE_PASSWORD", variable: 'LIQUIBASE_COMMAND_PASSWORD' )]) {
+		  
+			sh '''
+				liquibase flow --flow-file=flows/liquibase-snapshot-azure.flowfile.yaml
+			'''
+
+		  }  // Password creds
+		
+		  }	 // Username creds		
+		
+		  } // URL creds
+		} // URL env
+			
+		} // end steps
+	} // end stage
   
     stage('Snapshot') {
       steps {
