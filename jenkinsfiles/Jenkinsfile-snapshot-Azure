@@ -46,20 +46,40 @@ pipeline {
 			
 		  withCredentials([string(credentialsId: "LIQUIBASE_PASSWORD", variable: 'LIQUIBASE_COMMAND_PASSWORD' )]) {
 		  
-		  // withCredentials([string(credentialsId: "azuresp", passwordVariable: 'AZURE_CLIENT_SECRET', usernameVariable: 'AZURE_CLIENT_ID' )]) {
-		  
 			sh '''
 				liquibase flow --flow-file=flows/liquibase-snapshot-azure.flowfile.yaml
 			'''
-			
-          // }  // Azure SP creds
-		  }  // DB Password creds
-		  }	 // DB Username creds		
-		  } // DB URL creds
-		} // DB URL environment
+
+		  }  // Password creds
+		
+		  }	 // Username creds		
+		
+		  } // URL creds
+		} // URL env
 			
 		} // end steps
 	} // end stage
+  
+    stage('Snapshot') {
+      steps {
+	  
+	    echo "Environment: ${ENVIRONMENT}"
+		
+		withEnv(["URL_CREDENTIALID=LIQUIBASE_${ENVIRONMENT}_URL",]) {
+				withCredentials([string(credentialsId: "${URL_CREDENTIALID}", variable: 'LIQUIBASE_COMMAND_URL' )]) {
+			  
+				withCredentials([string(credentialsId: "LIQUIBASE_USER", variable: 'LIQUIBASE_COMMAND_USERNAME' )]) {
+				
+				withCredentials([string(credentialsId: "LIQUIBASE_PASSWORD", variable: 'LIQUIBASE_COMMAND_PASSWORD' )]) {
+	  
+					sh '''
+						liquibase --output-file=snapshots/${ENVIRONMENT}-snapshot.json snapshot --snapshot-format=json
+					'''
+				}  // Password creds
+				}	 // Username creds		
+				} // URL creds
+        } // URL env				
+      } // end steps
 
       post {
         success {
