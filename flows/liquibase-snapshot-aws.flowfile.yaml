@@ -9,7 +9,7 @@ stages:
   Snapshot:
     actions:
       - type: liquibase
-        command: snapshot-S3
+        command: snapshot
         cmdArgs: 
           {  snapshot-format: json }
         globalArgs: { output-file: 's3://${BUCKET}/snapshots/${ENV}-snapshot.json' }
