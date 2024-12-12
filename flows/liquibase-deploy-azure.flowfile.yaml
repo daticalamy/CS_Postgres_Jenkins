@@ -1,5 +1,7 @@
-##########           LIQUIBASE FLOWFILE                ##########
-##########  learn more http://docs.liquibase.com/flow  ##########
+##########  DEPLOY WITH DRIFT DETECTIONS AND CHECKS                                     ##########
+##########  learn more http://docs.liquibase.com/flow                                   ##########
+##########  This flow requires Azure CLI                                                ##########
+##########  Download at https://learn.microsoft.com/en-us/cli/azure/install-azure-cli   ##########
 
 globalVariables:
   JIRA: ${JIRA:-null}
