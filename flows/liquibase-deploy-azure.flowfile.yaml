@@ -22,12 +22,6 @@ stages:
           az account set --subscription ${SUBSCRIPTION_ID}
           az storage blob download --account-name ${STORAGE_ACCT} --container-name ${CONTAINER} --name DEV-snapshot.json --file ${WORKSPACE}/DEV-snapshot.json
           az logout  
-
-#  Drift-Detection:
-    # Check if manual updates were made to the environment since last deployment
-#    actions:
-#      - type: shell
-#        command: liquibase --search-path=s3://${BUCKET}/snapshots diff --reference-url=offline:postgres?snapshot=${ENV}-snapshot.json --report-name="drift-report-${ENV}.html" --drift-severity=1
           
   Validation:
     actions: 
