@@ -1,0 +1,87 @@
+pipeline {
+	agent any
+	
+	options {
+		// This is required if you want to clean before build
+		skipDefaultCheckout(true)
+	}
+	
+	environment {
+		PATH="/opt/liquibase/liquibase/:$PATH"
+		LIQUIBASE_COMMAND_USERNAME = credentials('LIQUIBASE_USER')
+		LIQUIBASE_COMMAND_PASSWORD = credentials('LIQUIBASE_PASSWORD')
+		LIQUIBASE_LICENSE_KEY = credentials('LIQUIBASE_KEY')
+		LIQUIBASE_DEFAULTS_FILE="liquibase.linux.properties"
+		JIRA = "${params.JIRA}"
+		ENVIRONMENT = "${params.ENVIRONMENT}"
+		
+        AWS_S3_BUCKET = credentials('AWS_S3_BUCKET')
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_REGION = "us-east-1"
+	}
+
+	stages {
+		stage('Workspace') {
+			steps {
+			
+			    script {
+				  currentBuild.displayName = "#" + env.BUILD_NUMBER + " ${JIRA}" + " ${ENVIRONMENT}"
+				}
+			
+				// Clean before build
+				cleanWs() // This requires ws-cleanup plugin
+					
+				// We need to explicitly checkout from SCM here
+				checkout scm
+				echo "Building ${env.JOB_NAME}..."
+			}  // end steps
+		} // end stage
+
+		stage('Deploy') {
+			steps {
+			
+			    echo "Environment: ${ENVIRONMENT}"
+			
+			    withEnv(["URL_CREDENTIALID=LIQUIBASE_${ENVIRONMENT}_URL",]) {
+                  withCredentials([string(credentialsId: "${URL_CREDENTIALID}", variable: 'LIQUIBASE_COMMAND_URL' )]) {
+			  
+                withCredentials([string(credentialsId: "LIQUIBASE_USER", variable: 'LIQUIBASE_COMMAND_USERNAME' )]) {
+				
+                withCredentials([string(credentialsId: "LIQUIBASE_PASSWORD", variable: 'LIQUIBASE_COMMAND_PASSWORD' )]) {
+			  
+				sh '''
+					# tag database
+					if [[ $JIRA != "" ]]
+					then
+						liquibase tag --tag=$JIRA
+												
+						# Run Liquibase flow file
+						liquibase flow --flow-file=flows/liquibase-deploy-aws.flowfile.yaml
+					
+					else
+						echo "No JIRA was provided ... exiting!"
+					exit 1
+					fi
+				'''
+
+                }  // Password creds
+			
+                }	 // Username creds		
+			
+			      } // URL creds
+                } // URL env    
+				
+			} // end steps
+		} // end stage		
+    }  // end stages
+	
+	post {
+			cleanup {  
+				archiveArtifacts '**/reports/**'
+			} // cleanup	
+	
+	} // end post
+		
+		
+} // end pipeline
