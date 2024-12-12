@@ -3,7 +3,7 @@
 
 globalVariables:
   JIRA: ${JIRA:-null}
-  ENV: ${ENVIRONMENT}  
+  ENV: ${ENVIRONMENT}
   CLIENT_ID: ${AZURE_CREDS_USR}
   CLIENT_SECRET: ${AZURE_CREDS_PSW}
   TENANT_ID: ${AZURE_TENANT_ID}
@@ -13,7 +13,7 @@ globalVariables:
 
 stages:
   
-  AzureDownload
+  AzureDownload:
     # Download existing snapshot from Azure Storage
     actions:
       - type: shell
