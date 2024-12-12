@@ -3,16 +3,31 @@
 
 globalVariables:
   JIRA: ${JIRA:-null}
-  ENV: ${ENVIRONMENT}
-  BUCKET: ${AWS_S3_BUCKET}
+  ENV: ${ENVIRONMENT}  
+  CLIENT_ID: ${AZURE_CREDS_USR}
+  CLIENT_SECRET: ${AZURE_CREDS_PSW}
+  TENANT_ID: ${AZURE_TENANT_ID}
+  SUBSCRIPTION_ID: ${AZURE_SUBSCRIPTION_ID}
+  STORAGE_ACCT: ${AZURE_STORAGE_ACCOUNT}
+  CONTAINER: ${AZURE_CONTAINER_NAME}
 
 stages:
-
-  Drift-Detection:
-    # Check if manual updates were made to the environment since last deployment
+  
+  AzureDownload
+    # Download existing snapshot from Azure Storage
     actions:
       - type: shell
-        command: liquibase --search-path=s3://${BUCKET}/snapshots diff --reference-url=offline:postgres?snapshot=${ENV}-snapshot.json --report-name="drift-report-${ENV}.html" --drift-severity=1
+        command: | 
+          az login --service-principal -u ${CLIENT_ID} -p ${CLIENT_SECRET} -t ${TENANT_ID}
+          az account set --subscription ${SUBSCRIPTION_ID}
+          az storage blob download --account-name ${STORAGE_ACCT} --container-name ${CONTAINER} --name DEV-snapshot.json --file ${WORKSPACE}/DEV-snapshot.json
+          az logout  
+
+#  Drift-Detection:
+    # Check if manual updates were made to the environment since last deployment
+#    actions:
+#      - type: shell
+#        command: liquibase --search-path=s3://${BUCKET}/snapshots diff --reference-url=offline:postgres?snapshot=${ENV}-snapshot.json --report-name="drift-report-${ENV}.html" --drift-severity=1
           
   Validation:
     actions: 
@@ -58,10 +73,20 @@ stages:
         command: snapshot
         cmdArgs: 
           {  snapshot-format: json }
-        globalArgs: { output-file: 's3://${BUCKET}/snapshots/${ENV}-snapshot.json' }
+        globalArgs: { output-file: 'snapshots/${ENV}-snapshot.json' }
         
       - type: shell
-        command: echo 'Updated snapshot saved to s3://${BUCKET}/snapshots/${ENV}-snapshot.json'
+        command: echo 'Snapshot created as snapshots/${ENV}-snapshot.json'
+        
+  AzureUpload:
+    actions:
+      - type: shell
+        command: | 
+          az login --service-principal -u ${CLIENT_ID} -p ${CLIENT_SECRET} -t ${TENANT_ID}
+          az account set --subscription ${SUBSCRIPTION_ID}
+          az storage container create --account-name ${STORAGE_ACCT} --name ${CONTAINER}
+          az storage blob upload-batch --destination ${CONTAINER} --source ./snapshots --account-name ${STORAGE_ACCT} --overwrite
+          az logout
 
 ## The endStage ALWAYS RUNS. 
 ## So put actions here which you desire to perform whether previous stages' actions succeed or fail.

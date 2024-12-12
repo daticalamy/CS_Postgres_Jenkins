@@ -15,10 +15,11 @@ pipeline {
 		JIRA = "${params.JIRA}"
 		ENVIRONMENT = "${params.ENVIRONMENT}"
 		
-        AWS_S3_BUCKET = credentials('AWS_S3_BUCKET')
-        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
-        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-        AWS_REGION = "us-east-1"
+		AZURE_SUBSCRIPTION_ID='a38e082e-9dfc-49dd-a5e8-9d13e908b010'
+		AZURE_TENANT_ID='fd6a63a1-3f33-4f34-802a-06ae5ad2217a'
+		AZURE_STORAGE_ACCOUNT='cssnapshots'
+		AZURE_CONTAINER_NAME='jenkins-snapshot'
+		AZURE_CREDS=credentials('azuresp')
 	}
 
 	stages {
@@ -57,7 +58,7 @@ pipeline {
 						liquibase tag --tag=$JIRA
 												
 						# Run Liquibase flow file
-						liquibase flow --flow-file=flows/liquibase-deploy.flowfile.yaml
+						liquibase flow --flow-file=flows/liquibase-deploy-azure.flowfile.yaml
 					
 					else
 						echo "No JIRA was provided ... exiting!"
