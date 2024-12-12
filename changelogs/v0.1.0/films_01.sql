@@ -23,6 +23,3 @@ ALTER table films_01 ADD CONSTRAINT unique_kind_01 UNIQUE (kind);
 
 --changeset amy.smith:films_01_drop_constraint labels:v0.1.0
 ALTER table films_01 DROP CONSTRAINT unique_kind_01;
-
---changeset amy.smith:films_01_drop_table labels:v0.1.0
-DROP TABLE films_01;
