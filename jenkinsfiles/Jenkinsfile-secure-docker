@@ -36,7 +36,7 @@ pipeline {
 					sh '''
 						docker run --rm \
 							-v ${WORKSPACE}:/liquibase/changelog \
-							-v ${LICENSE_FILE}:/liquibase/liquibase.license \
+							-e LIQUIBASE_LICENSE_KEY="${LICENSE_FILE}" \
 							-e LIQUIBASE_COMMAND_USERNAME="${LIQUIBASE_COMMAND_USERNAME}" \
 							-e LIQUIBASE_COMMAND_PASSWORD="${LIQUIBASE_COMMAND_PASSWORD}" \
 							-e LIQUIBASE_DEFAULTS_FILE="${LIQUIBASE_DEFAULTS_FILE}" \
