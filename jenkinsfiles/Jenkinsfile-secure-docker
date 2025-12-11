@@ -42,6 +42,7 @@ pipeline {
 							-e LIQUIBASE_DEFAULTS_FILE="${LIQUIBASE_DEFAULTS_FILE}" \
 							liquibase/liquibase-secure:latest \
 							liquibase -v
+							liquibase status
 					'''
 				}
 			}
