@@ -29,29 +29,22 @@ pipeline {
                 echo "Building ${env.JOB_NAME}..."
             }
         }
-		
-		stage('Debug Credentials') {
-			steps {
-				sh 'echo "License key length: ${#LIQUIBASE_LICENSE_KEY}"'
-				sh 'echo "First 12 chars: ${LIQUIBASE_LICENSE_KEY:0:12}"'
-				sh 'echo "Username: ${#LIQUIBASE_COMMAND_USERNAME}"'
-				sh 'echo "First 12 chars: ${LIQUIBASE_COMMAND_USERNAME:0:12}"'
-			}
-		}
         
         stage('Running Liquibase') {
-            steps {
-                sh '''
-                    docker run --rm \
-                        -v ${WORKSPACE}:/liquibase/changelog \
-                        -e LIQUIBASE_COMMAND_USERNAME="${LIQUIBASE_COMMAND_USERNAME}" \
-                        -e LIQUIBASE_COMMAND_PASSWORD="${LIQUIBASE_COMMAND_PASSWORD}" \
-                        -e LIQUIBASE_LICENSE_KEY="${LIQUIBASE_LICENSE_KEY}" \
-                        -e LIQUIBASE_DEFAULTS_FILE="${LIQUIBASE_DEFAULTS_FILE}" \
-                        liquibase/liquibase-secure:latest \
-                        liquibase -v
-                '''
-            }
-        }
+			steps {
+				withCredentials([file(credentialsId: 'LIQUIBASE_LICENSE_FILE', variable: 'LICENSE_FILE')]) {
+					sh '''
+						docker run --rm \
+							-v ${WORKSPACE}:/liquibase/changelog \
+							-v ${LICENSE_FILE}:/liquibase/liquibase.license \
+							-e LIQUIBASE_COMMAND_USERNAME="${LIQUIBASE_COMMAND_USERNAME}" \
+							-e LIQUIBASE_COMMAND_PASSWORD="${LIQUIBASE_COMMAND_PASSWORD}" \
+							-e LIQUIBASE_DEFAULTS_FILE="${LIQUIBASE_DEFAULTS_FILE}" \
+							liquibase/liquibase-secure:latest \
+							liquibase -v
+					'''
+				}
+			}
+		}
     }
 }
