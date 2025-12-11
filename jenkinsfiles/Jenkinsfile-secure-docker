@@ -34,6 +34,8 @@ pipeline {
 			steps {
 				sh 'echo "License key length: ${#LIQUIBASE_LICENSE_KEY}"'
 				sh 'echo "First 12 chars: ${LIQUIBASE_LICENSE_KEY:0:12}"'
+				sh 'echo "Username: ${#LIQUIBASE_COMMAND_USERNAME}"'
+				sh 'echo "First 12 chars: ${LIQUIBASE_COMMAND_USERNAME:0:12}"'
 			}
 		}
         
