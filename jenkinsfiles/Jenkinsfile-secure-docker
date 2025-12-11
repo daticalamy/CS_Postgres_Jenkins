@@ -34,15 +34,16 @@ pipeline {
 			steps {
 				withCredentials([file(credentialsId: 'LIQUIBASE_LICENSE_FILE', variable: 'LICENSE_FILE')]) {
 					sh '''
+					    LICENSE_KEY=$(cat ${LICENSE_FILE})
+					    
 						docker run --rm \
 							-v ${WORKSPACE}:/liquibase/changelog \
-							-e LIQUIBASE_LICENSE_KEY="${LICENSE_FILE}" \
+							-e LIQUIBASE_LICENSE_KEY="${LICENSE_KEY}" \
 							-e LIQUIBASE_COMMAND_USERNAME="${LIQUIBASE_COMMAND_USERNAME}" \
 							-e LIQUIBASE_COMMAND_PASSWORD="${LIQUIBASE_COMMAND_PASSWORD}" \
 							-e LIQUIBASE_DEFAULTS_FILE="${LIQUIBASE_DEFAULTS_FILE}" \
 							liquibase/liquibase-secure:latest \
-							liquibase -v
-							liquibase status
+							sh -c "liquibase -v && liquibase status"
 					'''
 				}
 			}
