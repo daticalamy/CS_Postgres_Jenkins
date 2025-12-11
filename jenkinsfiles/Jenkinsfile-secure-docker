@@ -32,11 +32,16 @@ pipeline {
         
         stage('Running Liquibase') {
             steps {
-                script {
-                    docker.image('liquibase/liquibase-secure:latest').inside {
-                        sh 'liquibase -v'
-                    }
-                }
+                sh '''
+                    docker run --rm \
+                        -v ${WORKSPACE}:/liquibase/changelog \
+                        -e LIQUIBASE_COMMAND_USERNAME="${LIQUIBASE_COMMAND_USERNAME}" \
+                        -e LIQUIBASE_COMMAND_PASSWORD="${LIQUIBASE_COMMAND_PASSWORD}" \
+                        -e LIQUIBASE_LICENSE_KEY="${LIQUIBASE_LICENSE_KEY}" \
+                        -e LIQUIBASE_DEFAULTS_FILE="${LIQUIBASE_DEFAULTS_FILE}" \
+                        liquibase/liquibase-secure:latest \
+                        liquibase -v
+                '''
             }
         }
     }
