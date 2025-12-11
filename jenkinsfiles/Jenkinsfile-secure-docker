@@ -1,54 +1,42 @@
 pipeline {
     agent any
-
-   options {
-		// This is required if you want to clean before build
-		skipDefaultCheckout(true)
-	}
-	
-	environment {
-		LIQUIBASE_COMMAND_USERNAME = credentials('LIQUIBASE_USER')
-		LIQUIBASE_COMMAND_PASSWORD = credentials('LIQUIBASE_PASSWORD')
-		LIQUIBASE_LICENSE_KEY = credentials('LIQUIBASE_KEY')
-		LIQUIBASE_DEFAULTS_FILE="liquibase.linux.properties"
-		ENVIRONMENT = "${params.ENVIRONMENT}"
-		
+    options {
+        skipDefaultCheckout(true)
+    }
+    
+    environment {
+        LIQUIBASE_COMMAND_USERNAME = credentials('LIQUIBASE_USER')
+        LIQUIBASE_COMMAND_PASSWORD = credentials('LIQUIBASE_PASSWORD')
+        LIQUIBASE_LICENSE_KEY = credentials('LIQUIBASE_KEY')
+        LIQUIBASE_DEFAULTS_FILE="liquibase.linux.properties"
+        ENVIRONMENT = "${params.ENVIRONMENT}"
+        
         AWS_S3_BUCKET = credentials('AWS_S3_BUCKET')
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
         AWS_REGION = "us-east-1"
-	}
-		
+    }
+        
     stages {
-
-		stage('Workspace') {
-			steps {
-			
-			    script {
-				  currentBuild.displayName = "#" + env.BUILD_NUMBER + " ${ENVIRONMENT}"
-				}
-			
-				// Clean before build
-				cleanWs() // This requires ws-cleanup plugin
-					
-				// We need to explicitly checkout from SCM here
-				checkout scm
-				echo "Building ${env.JOB_NAME}..."
-			}  // end steps
-		} // end stage
-
-        stage('Running Liquibase') {
-            agent {
-                docker {
-			
-                    image 'liquibase/liquibase-secure:latest'
-					
-                }
-            }
+        stage('Workspace') {
             steps {
-			
-                sh 'liquibase -v'
-				
+                script {
+                    currentBuild.displayName = "#" + env.BUILD_NUMBER + " ${ENVIRONMENT}"
+                }
+                
+                cleanWs()
+                checkout scm
+                echo "Building ${env.JOB_NAME}..."
+            }
+        }
+        
+        stage('Running Liquibase') {
+            steps {
+                script {
+                    docker.image('liquibase/liquibase-secure:latest').inside {
+                        sh 'liquibase -v'
+                    }
+                }
             }
         }
     }
