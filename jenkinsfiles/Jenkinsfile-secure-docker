@@ -29,6 +29,13 @@ pipeline {
                 echo "Building ${env.JOB_NAME}..."
             }
         }
+		
+		stage('Debug Credentials') {
+			steps {
+				sh 'echo "License key length: ${#LIQUIBASE_LICENSE_KEY}"'
+				sh 'echo "First 10 chars: ${LIQUIBASE_LICENSE_KEY:0:10}"'
+			}
+		}
         
         stage('Running Liquibase') {
             steps {
