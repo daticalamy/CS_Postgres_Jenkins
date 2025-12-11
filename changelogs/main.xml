@@ -17,4 +17,13 @@ http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibas
             <sqlFile path="scripts/new_table_02-rollback.sql" relativeToChangelogFile="true" splitStatements="true"/>
         </rollback>
 	</changeSet>
+	
+    <changeSet author="asmith" id="windows_execute_command_test2" runOnChange="true" runAlways="false">
+        <executeCommand executable="ping.exe" os="Nonsense">
+            <arg value="127.0.0.1"/>
+            <arg value="-n"/>
+            <arg value="1"/>
+        </executeCommand>
+    </changeSet>
+	
 </databaseChangeLog>
