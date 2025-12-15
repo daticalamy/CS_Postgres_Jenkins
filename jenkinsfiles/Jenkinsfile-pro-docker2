@@ -1,0 +1,134 @@
+/*
+###
+### This sample pipeline is intended as a starting point for integration between Liquibase Pro and Jenkins pipelines
+### Review and update prior to use
+###
+### Liquibase Secure version: 5.0.3+
+###
+### Liquibase sales: https://www.liquibase.com/contact-us
+### Liquibase support: https://support.liquibase.com/knowledge
+### 
+
+### 
+### Prior to running the following files must exist in repository:
+###
+### 1. liquibase.flowfile.jenkins.yaml
+###    This flow file
+###    https://docs.liquibase.com/commands/flow/flow.html
+###
+### 2. liquibase.checks-settings.conf
+###    Liquibase quality checks configuration file
+###    https://docs.liquibase.com/commands/quality-checks/home.html
+###
+### 3. changelog.main.xml
+###    Root Liquibase changelog file
+###    https://docs.liquibase.com/concepts/changelogs/home.html
+###
+*/
+
+/*
+###
+### Jenkins documentation: https://www.jenkins.io/doc/book/pipeline/jenkinsfile/
+###
+*/
+
+/*
+###
+### Utilizes a Linux node with git and docker available
+### https://www.jenkins.io/doc/book/managing/nodes/
+###
+*/
+pipeline {
+    agent { label 'liquibase' }
+
+/*
+###
+### Set Liquibase environment variables
+###
+*/
+    environment {
+        LB_ENVIRONMENT = "DEV"
+        LB_TAG = "${BUILD_ID}"
+        LIQUIBASE_COMMAND_CHANGELOG_FILE = 'db.changelog-main.yaml'
+/*
+###
+### These values should be pulled from Jenkins secrets
+### Secrets should include LIQUIBASE_COMMAND_URL, LIQUIBASE_COMMAND_USERNAME, LIQUIBASE_COMMAND_PASSWORD, LIQUIBASE_LICENSE_KEY
+###
+*/
+        LIQUIBASE_COMMAND_URL = "jdbc:postgresql://dmc-db.liquibase.net:5432/secure-poc"
+        LIQUIBASE_COMMAND_USERNAME = credentials('LIQUIBASE_DEV_USER')
+        LIQUIBASE_COMMAND_PASSWORD = credentials('LIQUIBASE_DEV_PASSWORD')
+        LIQUIBASE_LICENSE_KEY = credentials('LIQUIBASE_KEY2')
+    }
+/*
+###
+### Checkout pipeline repository
+###
+*/
+    stages {
+
+stage("Initialization") {
+            steps {
+                // use name of the patchset as the build name
+                buildName "Success - Build #${BUILD_NUMBER}"
+                buildDescription "Executed Success @ ${NODE_NAME}"
+            }
+        }
+        stage('Checking out repository') {
+            steps {
+/*
+###
+### Update to your project repository
+### Requires the git plugin for Jenkins
+### Github credentials are set as user/password type in Jenkins
+###
+*/
+                deleteDir()
+                checkout scmGit(branches: [[name: 'origin/main']], extensions: [], userRemoteConfigs: [[ url: 'https://github.com/daticalamy/CS_Postgres_Jenkins']])
+                sh 'git switch main'
+            }
+        }
+/*
+###
+### Run the Liquibase flowfile
+### Requires the Docker plugin for Jenkins
+###
+*/
+        
+        stage('Running Liquibase Success Flow') {
+  
+            steps { 
+  
+                sh 'docker run    --env LIQUIBASE_SEARCH_PATH=/liquibase/changelog --env LB_BASE_DIR=/liquibase/changelog --env LIQUIBASE_COMMAND_USERNAME --env LIQUIBASE_COMMAND_PASSWORD --env LIQUIBASE_COMMAND_URL --env LIQUIBASE_LICENSE_KEY --env LIQUIBASE_COMMAND_CHANGELOG_FILE --env LB_TAG --env LB_ENVIRONMENT   --rm -v $WORKSPACE:/liquibase/changelog  liquibase/liquibase:latest flow --flow-file=flows/liquibase-build.flowfile2.yaml'
+                
+            }
+        }       
+        
+/*
+###
+### Update respository
+###
+*/
+	stage('Updating repository') {
+		steps {
+			sh 'git config user.name jenkins-node'
+			sh 'git config user.email jenkins-node@jenkins.io'
+			sh 'git add .'
+			script {
+				def commitResult = sh(script: 'git diff --staged --quiet', returnStatus: true)
+				if (commitResult != 0) {
+					// There are changes to commit
+					sh 'git commit -m "Update repository"'
+					withCredentials([gitUsernamePassword(credentialsId: 'LIQUIBASE_GITHUB_TOKEN', gitToolName: 'Default')]) {
+						sh 'git push -u origin main --force'
+					}
+				} else {
+					echo 'No changes to commit. Skipping commit and push.'
+				}
+			}
+		}
+	}
+
+} // stages
+} // pipeline
