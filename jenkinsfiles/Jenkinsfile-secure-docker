@@ -5,7 +5,7 @@ pipeline {
     }
     
     environment {
-	    LIQUIBASE_COMMAND_URL = "jdbc:postgresql://dmc-db.liquibase.net:5432/secure_poc"
+	    LIQUIBASE_COMMAND_URL = "jdbc:postgresql://dmc-db.liquibase.net:5432/secure-poc"
         LIQUIBASE_COMMAND_USERNAME = credentials('LIQUIBASE_USER')
         LIQUIBASE_COMMAND_PASSWORD = credentials('LIQUIBASE_PASSWORD')
         LIQUIBASE_LICENSE_KEY = credentials('LIQUIBASE_KEY')
