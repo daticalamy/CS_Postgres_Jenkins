@@ -219,6 +219,11 @@ stages:
         command: snapshot
         globalArgs: { outputfile: "${LB_BASE_DIR}/${SNAPSHOT_FILE}" }
         cmdArgs: { snapshotFormat: "json" }
+
+      - type: liquibase
+        command: snapshot
+        globalArgs: { outputfile: "${LB_BASE_DIR}/reports/${SNAPSHOT_FILE}" }
+        cmdArgs: { snapshotFormat: "json" }
         
       - type: liquibase
         command: snapshot
