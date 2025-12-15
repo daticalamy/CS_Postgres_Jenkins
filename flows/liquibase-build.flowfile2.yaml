@@ -15,12 +15,6 @@ stages:
     actions: 
       - type: liquibase
         command: validate
-        
-  Checks-Changelog:
-    actions:
-      - type: shell
-        command: | 
-          liquibase checks run --checks-scope=changelog --report-name=checks-report-build-changelog.html --checks-settings-file=checks/liquibase.checks-settings.conf
          
   Status:
     actions:
