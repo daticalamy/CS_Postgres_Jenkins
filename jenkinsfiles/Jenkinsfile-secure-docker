@@ -5,6 +5,7 @@ pipeline {
     }
     
     environment {
+	    LIQUIBASE_COMMAND_URL = "jdbc:postgresql://localhost:5432/secure_jenkins"
         LIQUIBASE_COMMAND_USERNAME = credentials('LIQUIBASE_USER')
         LIQUIBASE_COMMAND_PASSWORD = credentials('LIQUIBASE_PASSWORD')
         LIQUIBASE_LICENSE_KEY = credentials('LIQUIBASE_KEY')
@@ -42,6 +43,7 @@ pipeline {
 						docker run --rm \
 							-v ${WORKSPACE}:/liquibase/changelog \
 							-e LIQUIBASE_LICENSE_KEY="${LICENSE_KEY}" \
+							-e LIQUIBASE_COMMAND_URL="${LIQUIBASE_COMMAND_URL}" \
 							-e LIQUIBASE_COMMAND_USERNAME="${LIQUIBASE_COMMAND_USERNAME}" \
 							-e LIQUIBASE_COMMAND_PASSWORD="${LIQUIBASE_COMMAND_PASSWORD}" \
 							-e LIQUIBASE_DEFAULTS_FILE="${LIQUIBASE_DEFAULTS_FILE}" \
