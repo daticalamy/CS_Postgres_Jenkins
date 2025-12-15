@@ -56,7 +56,7 @@ pipeline {
 ### Secrets should include LIQUIBASE_COMMAND_URL, LIQUIBASE_COMMAND_USERNAME, LIQUIBASE_COMMAND_PASSWORD, LIQUIBASE_LICENSE_KEY
 ###
 */
-        LIQUIBASE_COMMAND_URL = credentials('LIQUIBASE_DEV_URL')
+        LIQUIBASE_COMMAND_URL = "jdbc:postgresql://dmc-db.liquibase.net:5432/secure-poc"
         LIQUIBASE_COMMAND_USERNAME = credentials('LIQUIBASE_DEV_USER')
         LIQUIBASE_COMMAND_PASSWORD = credentials('LIQUIBASE_DEV_PASSWORD')
         LIQUIBASE_LICENSE_KEY = credentials('LIQUIBASE_KEY')
@@ -85,7 +85,7 @@ stage("Initialization") {
 ###
 */
                 deleteDir()
-                checkout scmGit(branches: [[name: 'origin/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'LIQUIBASE_GITHUB_TOKEN', url: 'https://github.com/BTP-Icon/liquibasesecure-postgres']])
+                checkout scmGit(branches: [[name: 'origin/main']], extensions: [], userRemoteConfigs: [[ url: 'https://github.com/daticalamy/CS_Postgres_Jenkins']])
                 sh 'git switch main'
             }
         }
