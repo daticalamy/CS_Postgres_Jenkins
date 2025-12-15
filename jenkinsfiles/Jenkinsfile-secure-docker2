@@ -110,16 +110,23 @@ stage("Initialization") {
 ### Update respository
 ###
 */
-        stage('Updating repository') {
-            steps {
-                sh 'git config user.name jenkins-node'
-                sh 'git config user.email jenkins-node@jenkins.io'
-                sh 'git add .'
-                sh 'git commit -m "Update repository"'
-                withCredentials([gitUsernamePassword(credentialsId: 'LIQUIBASE_GITHUB_TOKEN', gitToolName: 'Default')]) {
-                    sh 'git push -u origin main --force'
-                }
-            }
-        }
-    }
+	stage('Updating repository') {
+		steps {
+			sh 'git config user.name jenkins-node'
+			sh 'git config user.email jenkins-node@jenkins.io'
+			sh 'git add .'
+			script {
+				def commitResult = sh(script: 'git diff --staged --quiet', returnStatus: true)
+				if (commitResult != 0) {
+					// There are changes to commit
+					sh 'git commit -m "Update repository"'
+					withCredentials([gitUsernamePassword(credentialsId: 'LIQUIBASE_GITHUB_TOKEN', gitToolName: 'Default')]) {
+						sh 'git push -u origin main --force'
+					}
+				} else {
+					echo 'No changes to commit. Skipping commit and push.'
+				}
+			}
+		}
+	}
 }
