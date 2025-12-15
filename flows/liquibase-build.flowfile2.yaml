@@ -244,4 +244,4 @@ endStage:
       command: ls -la /liquibase/changelog
 
     - type: shell
-      command: ls -la /snapshots
+      command: ls -la snapshots
