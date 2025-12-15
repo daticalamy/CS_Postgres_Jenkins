@@ -59,7 +59,7 @@ pipeline {
         LIQUIBASE_COMMAND_URL = "jdbc:postgresql://dmc-db.liquibase.net:5432/secure-poc"
         LIQUIBASE_COMMAND_USERNAME = credentials('LIQUIBASE_DEV_USER')
         LIQUIBASE_COMMAND_PASSWORD = credentials('LIQUIBASE_DEV_PASSWORD')
-        LIQUIBASE_LICENSE_KEY = credentials('LIQUIBASE_KEY')
+        LIQUIBASE_LICENSE_KEY = credentials('LIQUIBASE_KEY2')
     }
 /*
 ###
