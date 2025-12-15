@@ -46,7 +46,7 @@ pipeline {
 							-e LIQUIBASE_COMMAND_PASSWORD="${LIQUIBASE_COMMAND_PASSWORD}" \
 							-e LIQUIBASE_DEFAULTS_FILE="${LIQUIBASE_DEFAULTS_FILE}" \
 							-e LIQUIBASE_SEARCH_PATH="${LIQUIBASE_SEARCH_PATH}" \
-							-e LIQUIBASE_COMMAND_CHANGELOG_FILE="${LIQUIBASE_COMMAND_CHANGELOG_FILE}" \							
+							-e LIQUIBASE_COMMAND_CHANGELOG_FILE="${LIQUIBASE_COMMAND_CHANGELOG_FILE}" \
 							liquibase/liquibase-secure:latest \
 							sh -c "liquibase -v && liquibase status"
 					'''
