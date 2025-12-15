@@ -8,8 +8,11 @@ pipeline {
         LIQUIBASE_COMMAND_USERNAME = credentials('LIQUIBASE_USER')
         LIQUIBASE_COMMAND_PASSWORD = credentials('LIQUIBASE_PASSWORD')
         LIQUIBASE_LICENSE_KEY = credentials('LIQUIBASE_KEY')
+		LB_BASE_DIR = "/liquibase/changelog"
         LIQUIBASE_DEFAULTS_FILE="liquibase.linux.properties"
+		LIQUIBASE_COMMAND_CHANGELOG_FILE = "db.changelog-main.yaml"
         ENVIRONMENT = "${params.ENVIRONMENT}"
+		LIQUIBASE_SEARCH_PATH = "/liquibase/changelog"
         
         AWS_S3_BUCKET = credentials('AWS_S3_BUCKET')
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
@@ -42,6 +45,8 @@ pipeline {
 							-e LIQUIBASE_COMMAND_USERNAME="${LIQUIBASE_COMMAND_USERNAME}" \
 							-e LIQUIBASE_COMMAND_PASSWORD="${LIQUIBASE_COMMAND_PASSWORD}" \
 							-e LIQUIBASE_DEFAULTS_FILE="${LIQUIBASE_DEFAULTS_FILE}" \
+							-e LIQUIBASE_SEARCH_PATH="${LIQUIBASE_SEARCH_PATH}" \
+							-e LIQUIBASE_COMMAND_CHANGELOG_FILE="${LIQUIBASE_COMMAND_CHANGELOG_FILE}" \							
 							liquibase/liquibase-secure:latest \
 							sh -c "liquibase -v && liquibase status"
 					'''
