@@ -219,9 +219,6 @@ stages:
         command: snapshot
         globalArgs: { outputfile: "${LB_BASE_DIR}/${SNAPSHOT_FILE}" }
         cmdArgs: { snapshotFormat: "json" }
-        
-      - type: shell
-        command: ls
 
 ###
 ### Always execute
@@ -234,3 +231,10 @@ endStage:
     #
     - type: liquibase
       command: history
+
+    - type: shell
+      command: ls
+
+    - type: shell
+      command: ls -la /liquibase/changelog
+      
